@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             }
         builder.create().show()
     }
-
+//random bullshit
 
 }
 
