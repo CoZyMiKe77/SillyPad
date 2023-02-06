@@ -110,5 +110,5 @@ class MainActivity : AppCompatActivity() {
 
 
 }
-//Todo: "Remember to add more brush sizes, starting from 1.5 to 15.5"
+
 
