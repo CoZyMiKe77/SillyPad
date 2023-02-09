@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -12,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import android.graphics.Color
 import android.os.Message
+import android.provider.MediaStore
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -21,6 +23,19 @@ class MainActivity : AppCompatActivity() {
 
     private var drawingView: DrawingView? = null
     private var mImageButtonCurrentPaint: ImageButton? = null
+
+    //this is gonna be the launcher for the gallery, just like it was for PermissionsRequest
+    val openGalleryLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+            result ->
+            if(result.resultCode == RESULT_OK && result.data!=null){
+                val imageBackground: ImageView = findViewById(R.id.iv_background)/* now we have the background
+                we are now going to assign data to it */
+
+                imageBackground.setImageURI(result.data?.data)//with that we can launch this in our "isGranted"
+            }
+        }
+
 
     //always make sure your minisdk ver is 21 an compile ver is 31 with these dependencies
     val requestPermission: ActivityResultLauncher<Array<String>> =
@@ -35,6 +50,12 @@ class MainActivity : AppCompatActivity() {
                     "Permission is granted, you can read storage files.",
                     Toast.LENGTH_LONG)
                     .show()
+
+                //this code here is to pick an image from other apps... eg: Gallery
+                val pickIntent = Intent(Intent.ACTION_PICK,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                openGalleryLauncher.launch(pickIntent)
+
             }else{//always make sure to use android manifest
                 if(permissionName== Manifest.permission.READ_EXTERNAL_STORAGE){
                     Toast.makeText(this@MainActivity,
@@ -127,6 +148,8 @@ class MainActivity : AppCompatActivity() {
         ){
             showRationaleDialog("Silly Pad", "Silly Pad" +
             "needs to Access Your External Storage")
+
+
         }else {
             requestPermission.launch(arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE
