@@ -1,5 +1,6 @@
 package com.shawnmichael.sillypad
 
+import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
@@ -13,6 +14,7 @@ import android.graphics.Color
 import android.os.Message
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 
 
 class MainActivity : AppCompatActivity() {
@@ -20,9 +22,28 @@ class MainActivity : AppCompatActivity() {
     private var drawingView: DrawingView? = null
     private var mImageButtonCurrentPaint: ImageButton? = null
 
+    //always make sure your minisdk ver is 21 an compile ver is 31 with these dependencies
     val requestPermission: ActivityResultLauncher<Array<String>> =
     registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()){
-        //this is where i ended
+        permissions ->
+        permissions.entries.forEach {
+            val permissionName = it.key
+            val isGranted = it.value
+
+            if(isGranted){
+                Toast.makeText(this@MainActivity,
+                    "Permission is granted, you can read storage files.",
+                    Toast.LENGTH_LONG)
+                    .show()
+            }else{//always make sure to use android manifest
+                if(permissionName== Manifest.permission.READ_EXTERNAL_STORAGE){
+                    Toast.makeText(this@MainActivity,
+                        "Oops! Just denied permission.",
+                        Toast.LENGTH_LONG)
+                        .show()
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +66,12 @@ class MainActivity : AppCompatActivity() {
 
         smallBrush.setOnClickListener {
             showBrushSizeChooserDialog()
+        }
+//setting onClickListener for ibGallery btn
+        val ib_gallery: ImageButton = findViewById(R.id.ib_gallery)
+        ib_gallery.setOnClickListener{
+
+            requestStoragePermission()
         }
     }
 
@@ -94,6 +121,20 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun requestStoragePermission(){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+            Manifest.permission.READ_EXTERNAL_STORAGE)
+        ){
+            showRationaleDialog("Silly Pad", "Silly Pad" +
+            "needs to Access Your External Storage")
+        }else {
+            requestPermission.launch(arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            //Todo: add writing external storage permission
+            ))
+        }
+    }
+
     private fun showRationaleDialog(
         title: String,
         message: String
@@ -107,7 +148,7 @@ class MainActivity : AppCompatActivity() {
             }
         builder.create().show()
     }
-//random bullshit
+
 
 }
 
