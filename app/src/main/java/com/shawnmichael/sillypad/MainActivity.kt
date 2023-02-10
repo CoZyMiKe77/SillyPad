@@ -84,10 +84,15 @@ class MainActivity : AppCompatActivity() {
         )
 
         val smallBrush: ImageButton = findViewById(R.id.ib_brush)
-
         smallBrush.setOnClickListener {
             showBrushSizeChooserDialog()
         }
+
+        val ib_undo: ImageButton = findViewById(R.id.ib_undo)
+        ib_undo.setOnClickListener {
+            drawingView?.onClickUndo()
+        }
+
 //setting onClickListener for ibGallery btn
         val ib_gallery: ImageButton = findViewById(R.id.ib_gallery)
         ib_gallery.setOnClickListener{
